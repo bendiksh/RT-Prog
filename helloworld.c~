@@ -29,6 +29,6 @@ int main(){
 	// Arguments to a thread would be passed here ---------^
 	pthread_join(thread1, NULL);
 	pthread_join(thread2, NULL);
-	printf("%d\n",i);
+	printf("%d",i);
 	return 0;
 }
