@@ -1,0 +1,47 @@
+Concurrency, why:
+	-efficiency
+	-
+
+Good:
+	-separate tasks can run separately
+	-execution of one task isn't dependent on the execution of another 		task
+
+Bad:
+	-different languages handle concurrency differently
+	-how to handle the concurrency
+
+Process:
+	-a part of a program being executed
+
+Thread:
+	-processes may be split into sets of threads
+	-parts of a process that can be eqecuted individually
+
+Green threads:
+	-threads scheduled by a VM
+	-simulates multithreading on systems without native multithreading 		capabilities
+
+Coroutines:
+	-a simple, separate routine
+	-similar to threads, but they control when to yield and call other 		coroutines themselves
+
+pthread_create: 
+	-thread
+threading.Thread(): 
+	-thread
+go: 
+	-coroutine, green thread(the run as a lightweight process in user 		mode, tied to a kernel thread)
+
+GIL:
+	-it doesn't allow threads to execute in parallel, in a way defeating part of the purpose for using threads
+	-memory management and other low level things are made simpler because of this
+
+GIL workaround:
+	-using Cython for ex. allows disabling of the GIL to run C functions
+	-to manipulate Python objects GIL must be aquired by the C function running without GIL
+	
+func GOMAXPROCS(n int) int:
+	-changes the maximum number of CPUs that can execute simultaneously
+	
+
+
