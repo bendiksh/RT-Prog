@@ -1,0 +1,53 @@
+package main
+
+import (
+	"fmt"
+	"log"
+	"net"
+	"sync"
+)
+
+func client(sAddr *net.UDPAddr, wg *sync.WaitGroup) {
+	cAddr, err := net.ResolveUDPAddr("udp", ":0")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	cConn, err := net.DialUDP("udp", cAddr, sAddr)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	buf := []byte("hello")
+	n, err := cConn.Write(buf)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Println("client: wrote:", string(buf[0:n]))
+	err = cConn.Close()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	wg.Done()
+}
+
+func main() {
+	sAddr, err := net.ResolveUDPAddr("udp", ":30000")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	sConn, err := net.ListenUDP("udp", sAddr)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Println("listening on ", sConn.LocalAddr().String())
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go client(sConn.LocalAddr().(*net.UDPAddr), &wg)
+	buf := make([]byte, 1024)
+	n, err := sConn.Read(buf)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Println("server: read:", string(buf[0:n]))
+	sConn.Close()
+	wg.Wait()
+}
