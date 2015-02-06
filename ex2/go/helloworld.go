@@ -38,8 +38,7 @@ func main() {
 	channel <- i
 	go Goroutine1(channel, done) // This spawns someGoroutine() as a goroutine
 	go Goroutine2(channel, done)
-	// We have no way to wait for the completion of a goroutine (without additional syncronization of some sort)
-	// We'll come back to using channels in Exercise 2. For now: Sleep.
+	//synchronization / joining
 	<- done
 	<- done
 	Printf("%d\n", i)
