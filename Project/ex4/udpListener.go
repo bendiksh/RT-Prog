@@ -12,6 +12,7 @@ func main() {
 		log.Fatalln(err)
 	}
 	sConn, err := net.ListenUDP("udp", sAddr)
+
 	if err != nil {
 		log.Fatalln(err)
 	}
