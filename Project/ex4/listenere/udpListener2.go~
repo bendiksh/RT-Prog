@@ -19,7 +19,7 @@ func UDP_routine(IPAddr string, chann chan string){
 }
 
 func UDP_listener(chann chan string){
-	sAddr, err := net.ResolveUDPAddr("udp", "129.241.187.255:20909")
+	sAddr, err := net.ResolveUDPAddr("udp", "129.241.187.255:20009")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -40,7 +40,7 @@ func UDP_listener(chann chan string){
 
 
 func UDP_IP_sender(IPAddr string){
-	cAddr, err := net.ResolveUDPAddr("udp", "129.241.187.255:20009")
+	cAddr, err := net.ResolveUDPAddr("udp", "129.241.187.255:20909")
 	if err != nil {
 		log.Fatalln(err)
 	}

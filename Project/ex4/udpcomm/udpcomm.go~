@@ -44,10 +44,11 @@ func UDP_IP_sender(IPAddr string){
 	if err != nil {
 		log.Fatalln(err)
 	}
-	IPArray := strings.Split(IPAddr, ".")
+	IPArray := make([]string, 4)
+	IPArray = strings.Split(IPAddr, ".")
 	buf2 := make([]byte, 4)
 	for i := 0;i<4;i++{
-		integer, _ := strconv.Atoi(IPArray[i])
+		integer, _ := strconv.Atoi(IParray[i])
 		buf2[i] = byte(integer)
 	}
 	cConn, err := net.DialUDP("udp", nil, cAddr)
