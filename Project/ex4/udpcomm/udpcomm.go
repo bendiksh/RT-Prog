@@ -1,4 +1,4 @@
-package main
+package udpcomm
 
 import  (
 	"fmt"
@@ -19,7 +19,7 @@ func UDP_routine(IPAddr string, chann chan string){
 }
 
 func UDP_listener(chann chan string){
-	sAddr, err := net.ResolveUDPAddr("udp", "129.241.187.255:20909")
+	sAddr, err := net.ResolveUDPAddr("udp", "129.241.187.255:20009")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -66,13 +66,4 @@ func UDP_IP_sender(IPAddr string){
 
 
 
-func main() {
-	kanal := make(chan string, 100)
-	go UDP_routine("192.168.0.2", kanal)
-	var streng string = ""
-	
-	for {
-		streng = <- kanal
-		fmt.Println(streng)
-	}
-}
+

@@ -1,7 +1,9 @@
 package main
 
 import (
-	"github.com/bendiksh/RT-Prog/Project/ex4/tcpcomm"
+
+	"mainlib"
+	"time"
 )
 
 const (
@@ -10,9 +12,13 @@ const (
 )
 
 func main () {
-	a:=tcpcomm.Info_struct{123,100}
-	tcpcomm.TCP_struct_sender(cAddr, a)
+	//a:=tcpcomm.Info_struct{123,100}
+	//tcpcomm.TCP_struct_sender(cAddr, a)
 	//go tcpcomm.TCP_struct_receiver(cAddr)
+	go mainlib.IP_list("YOYO dette er min IP")
+	for {
+		time.Sleep(4 * time.Second)
+	}
 }
 
 
