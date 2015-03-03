@@ -74,11 +74,11 @@ procedure exercise7 is
             Round_Num := Round_Num + 1;
 	    
             begin
-				Num := Unreliable_Slow_add(Prev);
-			exception
-				when Count_Failed =>
-					Manager.Signal_Abort;
-			end;
+		Num := Unreliable_Slow_add(Prev);
+	    exception
+		when Count_Failed =>
+			Manager.Signal_Abort;
+	    end;
 	    Manager.Finished;            
 
             if Manager.Commit = True then

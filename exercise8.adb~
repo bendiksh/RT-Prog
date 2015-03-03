@@ -1,7 +1,7 @@
 with Ada.Text_IO, Ada.Integer_Text_IO, Ada.Numerics.Float_Random;
 use  Ada.Text_IO, Ada.Integer_Text_IO, Ada.Numerics.Float_Random;
 
-procedure exercise7 is
+procedure exercise8 is
 
     Count_Failed    : exception;    -- Exception to be raised when counting fails
     Gen             : Generator;    -- Random number generator
@@ -72,14 +72,24 @@ procedure exercise7 is
         loop
             Put_Line ("Worker" & Integer'Image(Initial) & " started round" & Integer'Image(Round_Num));
             Round_Num := Round_Num + 1;
+            
+            select
+            	Manager.Wait_Until_Abort;
+            	-- code that is run when the triggering_alternative has triggered
+            	
+            then abort
+            	Num := Unreliable_Slow_Add;
+            	-- code that is run when nothing has triggered
+            	
+            end select;
 	    
-            begin
-				Num := Unreliable_Slow_add(Prev);
-			exception
-				when Count_Failed =>
-					Manager.Signal_Abort;
-			end;
-	    Manager.Finished;            
+        	--begin
+				--Num := Unreliable_Slow_add(Prev);
+			--exception
+				--when Count_Failed =>
+					--Manager.Signal_Abort;
+			--end;
+			Manager.Finished;            
 
             if Manager.Commit = True then
                 Put_Line ("  Worker" & Integer'Image(Initial) & " comitting" & Integer'Image(Num));
