@@ -38,7 +38,6 @@ func Elev_init() {
 		if i != (N_floors - 1) {
 			Elev_set_btn_light(Button_down, i, 0)
 		}
-		Elev_set_btn_light(Button_command, i, 0)
 	}
 }
 
