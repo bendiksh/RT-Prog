@@ -8,35 +8,34 @@ procedure exercise8 is
 
     protected type Transaction_Manager (N : Positive) is
         entry Finished;
-        function Commit return Boolean;
         procedure Signal_Abort;
+        entry Wait_Until_Aborted;
     private
         Finished_Gate_Open  : Boolean := False;
         Aborted             : Boolean := False;
-        Should_Commit       : Boolean := True;
     end Transaction_Manager;
     protected body Transaction_Manager is
         entry Finished when Finished_Gate_Open or Finished'Count = N is
         begin
-		if Finished'Count = N-1 then
-			Finished_Gate_Open := True;
-			Should_Commit := not Aborted;
-		end if;
-		if Finished'Count = 0 then
-			Finished_Gate_Open := False;
-			Aborted := False;
-		end if;
-	end Finished;
+			if Finished'Count = N-1 then
+				Finished_Gate_Open := True;
+			end if;
+			if Finished'Count = 0 then
+				Finished_Gate_Open := False;
+			end if;
+		end Finished;
 
         procedure Signal_Abort is
         begin
             Aborted := True;
         end Signal_Abort;
 
-        function Commit return Boolean is
+        entry Wait_Until_Aborted when Aborted is
         begin
-            return Should_Commit;
-        end Commit;
+        	if Wait_Until_Aborted'Count = 0 then
+        		Aborted := False;
+        	end if;
+        end Wait_Until_Aborted;
         
     end Transaction_Manager;
 
@@ -74,32 +73,23 @@ procedure exercise8 is
             Round_Num := Round_Num + 1;
             
             select
-            	Manager.Wait_Until_Abort;
+            	Manager.Wait_Until_Aborted;
             	-- code that is run when the triggering_alternative has triggered
+            	Num := Prev + 5;
             	
             then abort
-            	Num := Unreliable_Slow_Add;
-            	-- code that is run when nothing has triggered
-            	
+            	begin
+		        	Num := Unreliable_Slow_Add(Prev);
+		        	-- code that is run when nothing has triggered
+            	exception
+            		when Count_Failed =>
+            			Manager.Signal_Abort;
+            	end;
             end select;
-	    
-        	--begin
-				--Num := Unreliable_Slow_add(Prev);
-			--exception
-				--when Count_Failed =>
-					--Manager.Signal_Abort;
-			--end;
+			
 			Manager.Finished;            
 
-            if Manager.Commit = True then
-                Put_Line ("  Worker" & Integer'Image(Initial) & " comitting" & Integer'Image(Num));
-            else
-                Put_Line ("  Worker" & Integer'Image(Initial) &
-                             " reverting from" & Integer'Image(Num) &
-                             " to" & Integer'Image(Prev));
-		
-                Num := Prev;
-            end if;
+            Put_Line ("  Worker" & Integer'Image(Initial) & " comitting" & Integer'Image(Num));
 
             Prev := Num;
             delay 0.5;
@@ -115,7 +105,7 @@ procedure exercise8 is
 
 begin
     Reset(Gen); -- Seed the random number generator
-end exercise7;
+end exercise8;
 
 
 
