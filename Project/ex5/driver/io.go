@@ -8,7 +8,7 @@ import(
 )
 
 func Io_init() int {
-	return (C.io_init())
+	return (int(C.io_init()))
 }
 
 func Io_set_bit(channel int) {
