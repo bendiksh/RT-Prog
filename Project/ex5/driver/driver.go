@@ -24,13 +24,21 @@ var Light_matrix = [N_floors][N_buttons]int{
 	{LIGHT_UP4,LIGHT_DOWN4,LIGHT_COMMAND4}
 }
 
+var button=[N_floors][N_buttons]int{
+	{0,0,0},
+	{0,0,0},
+	{0,0,0},
+	{0,0,0}
+}
+
 var Sensors = [N_floors]int{SENSOR_FLOOR1,SENSOR_FLOOR2,SENSOR_FLOOR3,SENSOR_FLOOR4}
 
-func Elev_init() {
+func Elev_init() (int,int){ // returns a status int and a floor int
 	if !(Io_init()) {
-		return 0
+		return 0, 0
 	}
 	
+	// turn off all lights
 	for i := 0; i < N_floors; i++ {
 		if i != 0 {
 			Elev_set_btn_light(Button_down, i, 0)
@@ -44,8 +52,16 @@ func Elev_init() {
 	Elev_stop_light(0)
 	Elev_door_light(0)
 	Elev_floor_ind(0)
+	
+	// find current floor
+	floor := 0
+	for i := 0; i < N_floors; i++{
+		if(Io_read_bit(Sensors[i]) == 1) {
+			floor = i
+		}
+	}
 
-	return 1
+	return 1, floor
 }
 
 func Elev_floor_ind(floor int){
@@ -61,10 +77,18 @@ func Elev_floor_ind(floor int){
 	}
 }
 
-func Elev_get_button(){
+func Elev_get_button(){ // need an Event type
 	for i := 0; i < N_floors; i++ {
-		for j := 0; j < N_buttons
+		for j := 0; j < N_buttons; j++{
+			if (Io_read_bit(Button_matrix[i][j]) == 1 && button[i][j] == 0){
+				button[i][j] = 1
+				return // need an Event type
+			}else if (Io_read_bit(Button_matrix[i][j]) == 0){
+				button[i][j] = 0
+			}
+		}
 	}
+	return // need an Event type
 }
 
 func Elev_set_btn_light(button, floor, value int){
