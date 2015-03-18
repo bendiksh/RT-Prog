@@ -125,7 +125,7 @@ func Elev_door_light(i int){
 	}
 }
 
-var prev_speed = 0
+var prev_speed int
 
 func Elev_motor(speed int){
 	if ( speed > 0 ){

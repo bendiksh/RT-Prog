@@ -29,7 +29,7 @@ var Sensors = [N_floors]int{SENSOR_FLOOR1,SENSOR_FLOOR2,SENSOR_FLOOR3,SENSOR_FLO
 
 // Functions
 func Elev_init() (int,int){ // returns a status int and a floor int
-	if (Io_init() != 1) {
+	if (int(Io_init()) != 1) {
 		return 0, 0
 	}
 	
