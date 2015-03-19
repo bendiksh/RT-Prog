@@ -41,7 +41,7 @@ const(
 	LIGHT_DOWN3 		= (0x300+5)
 	LIGHT_DOWN4 		= (0x300+4)
 	LIGHT_DOOR_OPEN 	= (0x300+3)
-	LIGHT_FLOOR_IND2 	= (0x300+2)
+	LIGHT_FLOOR_IND2 	= (0x300+1)
 	LIGHT_FLOOR_IND1 	= (0x300+0)
 	
 	// out port 0

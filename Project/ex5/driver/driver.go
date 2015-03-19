@@ -2,8 +2,11 @@ package driver
 
 import . "time"
 import . "math"
+import . "fmt"
 	
+//
 // Matrices of buttons, lights and sensor to loop through easier
+//
 var Button_matrix = [N_floors][N_buttons]int{
 	{BUTTON_UP1,BUTTON_DOWN1,BUTTON_COMMAND1},
 	{BUTTON_UP2,BUTTON_DOWN2,BUTTON_COMMAND2},
@@ -27,7 +30,9 @@ var button=[N_floors][N_buttons]int{
 
 var Sensors = [N_floors]int{SENSOR_FLOOR1,SENSOR_FLOOR2,SENSOR_FLOOR3,SENSOR_FLOOR4}
 
+//
 // Functions
+//
 func Elev_init() (int,int){ // returns a status int and a floor int
 	if (int(Io_init()) != 1) {
 		return 0, 0
@@ -36,17 +41,16 @@ func Elev_init() (int,int){ // returns a status int and a floor int
 	// turn off all lights
 	for i := 0; i < N_floors; i++ {
 		if i != 0 {
-			Elev_set_btn_light(Button_down, i, 0)
+			Elev_set_btn_light(i, Button_down, 0)
 		}
 		if i != (N_floors - 1) {
-			Elev_set_btn_light(Button_down, i, 0)
+			Elev_set_btn_light(i, Button_up, 0)
 		}
-		Elev_set_btn_light(Button_command, i, 0)
+		Elev_set_btn_light(i, Button_command, 0)
 	}
 
 	Elev_stop_light(0)
 	Elev_door_light(0)
-	Elev_floor_ind(0)
 	
 	// find current floor
 	floor := 0
@@ -55,6 +59,8 @@ func Elev_init() (int,int){ // returns a status int and a floor int
 			floor = i
 		}
 	}
+	Printf("Init floor : %d\n", floor+1)
+	Elev_floor_ind(floor)
 
 	return 1, floor
 }
@@ -65,7 +71,7 @@ func Elev_floor_ind(floor int){
 	} else{
 		Io_clear_bit(LIGHT_FLOOR_IND1)
 	}
-	if (floor & 0x01 == 0x01){
+	if (floor & 0x01 == 0x01) {
 		Io_set_bit(LIGHT_FLOOR_IND2)
 	} else{
 		Io_clear_bit(LIGHT_FLOOR_IND2)
@@ -73,7 +79,7 @@ func Elev_floor_ind(floor int){
 }
 
 
-func Elev_get_button() Event{ 
+func Elev_poll_buttons() Event{ 
 	for i := 0; i < N_floors; i++ {
 		for j := 0; j < N_buttons; j++{
 			if (Io_read_bit(Button_matrix[i][j]) == 1 && button[i][j] == 0){
@@ -87,7 +93,7 @@ func Elev_get_button() Event{
 	return Event{-1,-1}
 }
 
-func Elev_set_btn_light(button, floor, value int){
+func Elev_set_btn_light(floor, button, value int){
 	if value == 1 {
 		Io_set_bit(Light_matrix[floor][button])
 	}else {
@@ -95,7 +101,7 @@ func Elev_set_btn_light(button, floor, value int){
 	}
 }
 
-func Elev_floor_sensor() int{
+/*func Elev_floor_sensor() int{
 	if (Io_read_bit(SENSOR_FLOOR1) == 1){
 		return 0
 	}else if (Io_read_bit(SENSOR_FLOOR2) == 1){
@@ -107,6 +113,28 @@ func Elev_floor_sensor() int{
 	}else {
 		return -1
 	}
+}*/
+
+func Elev_poll_sensors(low, high, goal int) int {
+	done := false
+	curr := 0
+	for !done {
+		for i := low; i < high; i++ {
+			Sleep(1 * Millisecond)
+			if Io_read_bit(Sensors[i]) == 1 {
+				if i != curr {
+					Printf("Floor sensor: %d\n", i)
+				}
+				curr = i
+				Elev_floor_ind(i)
+				if i == goal || i == N_floors -1 {
+					done = true
+					break
+				}
+			}
+		}
+	}
+	return curr
 }
 
 func Elev_stop_light(i int){

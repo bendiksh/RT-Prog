@@ -25,14 +25,14 @@ const(
 	
 	// out port 3
 	PORT3 				= 3
-	MOTORDIR 			= (Ox300+15)
-	LIGHT_STOP 			= (Ox300+14)
-	LIGHT_COMMAND1 		= (Ox300+13)
-	LIGHT_COMMAND2 		= (Ox300+12)
-	LIGHT_COMMAND3 		= (Ox300+11)
-	LIGHT_COMMAND4 		= (Ox300+10)
-	LIGHT_UP1 			= (Ox300+9)
-	LIGHT_UP2 			= (Ox300+8)
+	MOTORDIR 			= (0x300+15)
+	LIGHT_STOP 			= (0x300+14)
+	LIGHT_COMMAND1 		= (0x300+13)
+	LIGHT_COMMAND2 		= (0x300+12)
+	LIGHT_COMMAND3 		= (0x300+11)
+	LIGHT_COMMAND4 		= (0x300+10)
+	LIGHT_UP1 			= (0x300+9)
+	LIGHT_UP2 			= (0x300+8)
 	
 	// out port 2
 	PORT2 				= 3
