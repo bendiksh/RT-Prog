@@ -4,13 +4,13 @@ import(
 	"RT-Prog/Project/ex5/driver"
 	"fmt"
 	"time"
+	"log"
 )
 
 func main() {
 	err, floor := driver.Elev_init()
 	if err != 1 {
-		fmt.Println("Could not initialize")
-		return
+		log.Fatalln(err)
 	}
 	
 	Elevator_call(floor)
@@ -47,21 +47,6 @@ func Elevator_call(curr_floor int) {
 				fmt.Println("elevator going up")
 				
 				// Poll sensors until the elevator is on the right floor
-				/*done := false
-				for !done {
-					for i := curr_floor; i < driver.N_floors; i++ {
-						time.Sleep(1*time.Millisecond)
-						if driver.Io_read_bit(driver.Sensors[i]) == 1 {
-							curr_floor = i
-							fmt.Printf("up: %d\n", i+1)
-							if i == press.Floor || i == driver.N_floors - 1 {
-								done = true
-								break
-							}
-						}
-					}
-				}*/
-				
 				curr_floor = driver.Elev_poll_sensors(curr_floor, driver.N_floors, press.Floor)
 				fmt.Printf("curr_floor = %d\n", curr_floor)
 				
@@ -74,28 +59,13 @@ func Elevator_call(curr_floor int) {
 			} else if press.Floor < curr_floor {
 				// call from above
 				fmt.Println("press<curr")
-				// Poll sensors until the elevator is on the right floor
+				
 				
 				// Start elevator
 				driver.Elev_motor(-200)
 				fmt.Println("elevator going down")
 				
 				// Poll sensors until the elevator is on the right floor
-				/*done := false
-				for !done {
-					for i := 0; i < curr_floor; i++ {
-						time.Sleep(1*time.Millisecond)
-						if driver.Io_read_bit(driver.Sensors[i]) == 1 {
-							curr_floor = i
-							fmt.Printf("down: %d\n", i+1)
-							if i == press.Floor || i == driver.N_floors - 1 {
-								done = true
-								break
-							}
-						}
-					}
-				}*/
-				
 				curr_floor = driver.Elev_poll_sensors(0, curr_floor, press.Floor)
 				fmt.Printf("curr_floor = %d\n", curr_floor)
 				
