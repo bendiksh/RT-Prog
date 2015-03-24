@@ -7,7 +7,7 @@ const(
 	N_buttons = 3 
 )
 
-type Event struct {
+type Event_t struct {
 	Floor int
 	Type int
 }

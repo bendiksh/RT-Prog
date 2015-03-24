@@ -13,7 +13,7 @@ func main() {
 		log.Fatalln("fail")
 	}
 	
-	call_chan := make(chan driver.Event, 2)
+	call_chan := make(chan driver.Event_t, 2)
 	
 	go Buttons(call_chan)
 	go Elevator(floor, call_chan)
@@ -22,16 +22,21 @@ func main() {
 	
 }
 
-func Elevator(curr_floor int, call_chan chan driver.Event) {
-	var call driver.Event
+func HandleJobs() {
+	
+}
+
+func Elevator(curr_floor int, call_chan chan driver.Event_t) {
+	//var call driver.Event_t
 	
 	for {
-		call =<- call_chan
+		call := <- call_chan
 		fmt.Printf("Floor : %d, Type: %d\n", call.Floor, call.Type)
 		if (call.Floor >= 0) && (call.Floor < driver.N_floors) {
 			driver.Elev_set_btn_light(call.Floor, call.Type, 1)
 			switch {
 				case call.Floor == curr_floor:
+					driver.Elev_set_btn_light(call.Floor, call.Type, 0)
 					driver.Elev_door_light(1)
 					time.Sleep(1*time.Second)
 					driver.Elev_door_light(0)
@@ -60,7 +65,7 @@ func Elevator(curr_floor int, call_chan chan driver.Event) {
 	
 }
 
-func Buttons(call_chan chan driver.Event){
+func Buttons(call_chan chan driver.Event_t){
 	//q := make([]driver.Event, 0, 10)
 	for {
 		press := driver.Elev_poll_buttons()

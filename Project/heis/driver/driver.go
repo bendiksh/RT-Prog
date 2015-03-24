@@ -79,18 +79,18 @@ func Elev_floor_ind(floor int){
 }
 
 
-func Elev_poll_buttons() Event{ 
+func Elev_poll_buttons() Event_t{ 
 	for i := 0; i < N_floors; i++ {
 		for j := 0; j < N_buttons; j++{
 			if (Io_read_bit(Button_matrix[i][j]) == 1 && button[i][j] == 0){
 				button[i][j] = 1
-				return Event{i,j} // returns which floor (i) button (j) has been pressed
+				return Event_t{i,j} // returns on which floor (i) the button (j) has been pressed
 			}else if (Io_read_bit(Button_matrix[i][j]) == 0){
 				button[i][j] = 0
 			}
 		}
 	}
-	return Event{-1,-1}
+	return Event_t{-1,-1}
 }
 
 func Elev_set_btn_light(floor, button, value int){
