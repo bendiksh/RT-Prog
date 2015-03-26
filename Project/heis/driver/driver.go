@@ -127,7 +127,7 @@ func Elev_poll_sensors(low, high, goal int) int {
 				}
 				curr = i
 				Elev_floor_ind(i)
-				if i == goal || i == N_floors -1 {
+				if i == goal || i == N_floors - 1 {
 					done = true
 					break
 				}

@@ -261,7 +261,7 @@ func handleMasterMessage(msgChan chan Message, handleEventChan chan Event) {
 			break
 		case 4:
 			//backup of the masters elevator map
-			backup1 = DecodeElevatorMap(m.Msg[1:])
+			backup = DecodeElevatorMap(m.Msg[1:])
 			break
 		}
 	}
@@ -353,7 +353,7 @@ func main() {
 			NetworkMode = true
 			fmt.Println("Returning to network mode")
 			//send backup of the previous masters elevator map to new master
-			SendMessage(conn, backup1)
+			SendMessage(conn, backup)
 			//send info about self to new master
 			SendMessage(conn, elev)
 		}

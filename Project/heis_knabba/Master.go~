@@ -25,7 +25,7 @@ var emap = make(ElevatorMap)
 var emapGuard = make(chan bool, 1)
 
 //backup of the elevator map (received from the slaves in case the master dies)
-var backup2 = make(ElevatorMap)
+var backup = make(ElevatorMap)
 var receivedBackup = bool(false)
 
 /*
@@ -93,7 +93,7 @@ func handleMessages(msgChan chan Message) {
 		case 4:
 			//Bakcup from the previous master
 			if !receivedBackup {
-				backup2 = DecodeElevatorMap(m.Msg[1:])
+				backup = DecodeElevatorMap(m.Msg[1:])
 				receivedBackup = true
 			}
 			break
@@ -179,7 +179,7 @@ func checkForBackup() {
 	time.Sleep(2 * time.Second)
 	if receivedBackup {
 		<-emapGuard
-		for addr, elev := range backup2 {
+		for addr, elev := range backup {
 			if _, ok := emap[addr]; !ok {
 				//found an elevator in the backup that is not connected now
 				DistributeJobs(elev)

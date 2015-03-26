@@ -26,3 +26,9 @@ const(
 	//TURN_ON_DOWN_LIGHT = 9
 	//TURN_OFF_LIGHTS = 10
 )
+
+type Elev_t struct {
+	//ID
+	upCalls [N_floors]int
+	downCalls [N_floors]int 
+}

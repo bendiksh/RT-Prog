@@ -1,8 +1,8 @@
 package network
 
 import (
-	. "RT-Prog/Project/heis_knabba/datatypes"
-	. "RT-Prog/Project/heis_knabba/encoder"
+	. "./heis_knabba/datatypes"
+	. "./heis_knabba/encoder"
 	"fmt"
 	"net"
 	"os"

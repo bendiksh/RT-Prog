@@ -4,7 +4,7 @@ package driver
 
 import . "math"
 import . "time"
-import . "RT-Prog/Project/heis_knabba/datatypes"
+import . "heis_knabba/datatypes"
 
 
 /*

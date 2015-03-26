@@ -3,7 +3,7 @@ package encoder
 //This package contains function for encoding/decoding the messages that are sent over the network
 
 import (
-	. "RT-Prog/Project/heis_knabba/datatypes"
+	. "./heis_knabba/datatypes"
 	"strconv"
 	"strings"
 )
