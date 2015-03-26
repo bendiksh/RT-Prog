@@ -7,67 +7,129 @@ import(
 	"log"
 )
 
+var elev = driver.Elev_t{
+	[4]int{0,0,0,0},
+	[4]int{0,0,0,0},
+	0,
+	0,
+	nil,
+}
+
 func main() {
 	err, floor := driver.Elev_init()
 	if err != 0 {
 		log.Fatalln("fail")
 	}
 	
-	call_chan := make(chan driver.Event, 2)
-	for i := 0; i < 10; i++ {
-		go Buttons(call_chan)
-		go Elevator(floor, call_chan)
-	}
+	call_chan := make(chan driver.Event_t)
+	btn_chan := make(chan driver.Event_t)
+	elev_chan := make(chan int)
+	Job_done := make(chan bool)
 	
-	time.Sleep(100*time.Second)
-	
-}
-
-func Elevator(curr_floor int, call_chan chan driver.Event) {
-	var call driver.Event
+	go Buttons(btn_chan, call_chan)
+	go Elevator(floor, elev_chan, call_chan)
 	
 	for {
-		call =<- call_chan
-		fmt.Printf("Floor : %d, Type: %d\n", call.Floor, call.Type)
-		if (call.Floor >= 0) && (call.Floor < driver.N_floors) {
-			driver.Elev_set_btn_light(call.Floor, call.Type, 1)
-			switch {
-				case call.Floor == curr_floor:
-					driver.Elev_door_light(1)
-					time.Sleep(1*time.Second)
-					driver.Elev_door_light(0)
-					//break
-				case call.Floor > curr_floor:
-					driver.Elev_motor(200)
-					curr_floor = driver.Elev_poll_sensors(curr_floor, driver.N_floors, call.Floor)
-					driver.Elev_motor(0)
-					driver.Elev_set_btn_light(call.Floor, call.Type, 0)
-					driver.Elev_door_light(1)
-					time.Sleep(1*time.Second)
-					driver.Elev_door_light(0)
-					//break
-				case call.Floor < curr_floor:
-					driver.Elev_motor(-200)
-					curr_floor = driver.Elev_poll_sensors(0, curr_floor, call.Floor)
-					driver.Elev_motor(0)
-					driver.Elev_set_btn_light(call.Floor, call.Type, 0)
-					driver.Elev_door_light(1)
-					time.Sleep(1*time.Second)
-					driver.Elev_door_light(0)
-					//break
-			}
+		select {
+			case b := <-btn_chan:
+				fmt.Printf("Button pressed on floor: %d, type: %d\n", b.Floor, b.Type)
+			case f := <-elev_chan:
+				fmt.Printf("Elevator is at floor: %d\n", f)
 		}
 	}
 	
 }
 
-func Buttons(call_chan chan driver.Event){
-	//q := make([]driver.Event, 0, 10)
+func HandleJobs() {
+	
+}
+
+func Elevator(curr_floor int, elev_chan chan int, call_chan chan driver.Event_t) {
+	//var call driver.Event_t
+	
+	for {
+		call := <- call_chan
+		//fmt.Printf("Floor : %d, Type: %d\n", call.Floor, call.Type)
+		if (call.Floor >= 0) && (call.Floor < driver.N_floors) {
+			driver.Elev_set_btn_light(call.Floor, call.Type, 1)
+			if call.Floor == curr_floor{
+				fmt.Println("Same floor")
+				
+				
+			}else if call.Floor > curr_floor {
+				fmt.Println("Going up")
+				driver.Elev_motor(200)
+				curr_floor = driver.Elev_poll_sensors(curr_floor, driver.N_floors, call.Floor)
+				driver.Elev_motor(0)
+				
+				
+			}else if call.Floor < curr_floor {
+				fmt.Println("Going down")
+				driver.Elev_motor(-200)
+				curr_floor = driver.Elev_poll_sensors(0, curr_floor, call.Floor)
+				driver.Elev_motor(0)
+				
+		
+			}
+			driver.Elev_set_btn_light(call.Floor, call.Type, 0)
+			driver.Elev_door_light(1)
+			time.Sleep(1*time.Second)
+			driver.Elev_door_light(0)
+			elev_chan <- curr_floor
+		}
+		
+		/*
+		if (call.Floor >= 0) && (call.Floor < driver.N_floors) {
+			driver.Elev_set_btn_light(call.Floor, call.Type, 1)
+			switch {
+			case call.Floor == curr_floor:
+				fmt.Println("Same floor")
+				driver.Elev_set_btn_light(call.Floor, call.Type, 0)
+				driver.Elev_door_light(1)
+				time.Sleep(1*time.Second)
+				driver.Elev_door_light(0)
+				elev_chan <- curr_floor
+				break
+				
+			case call.Floor > curr_floor:
+				fmt.Println("Going up")
+				driver.Elev_motor(200)
+				curr_floor = driver.Elev_poll_sensors(curr_floor, driver.N_floors, call.Floor)
+				driver.Elev_motor(0)
+				driver.Elev_set_btn_light(call.Floor, call.Type, 0)
+				driver.Elev_door_light(1)
+				time.Sleep(1*time.Second)
+				driver.Elev_door_light(0)
+				elev_chan <- curr_floor
+				break
+				
+			case call.Floor < curr_floor:
+				fmt.Println("Going down")
+				driver.Elev_motor(-200)
+				curr_floor = driver.Elev_poll_sensors(0, curr_floor, call.Floor)
+				driver.Elev_motor(0)
+				driver.Elev_set_btn_light(call.Floor, call.Type, 0)
+				driver.Elev_door_light(1)
+				time.Sleep(1*time.Second)
+				driver.Elev_door_light(0)
+				elev_chan <- curr_floor
+				break
+		}
+		*/
+		
+	}
+	
+}
+
+func Buttons(btn_chan chan driver.Event_t, call_chan chan driver.Event_t){
 	for {
 		press := driver.Elev_poll_buttons()
-		if (press.Floor >= 0) && (press.Floor < driver.N_floors) {
-			//q = append(q, press)
-			fmt.Println(press)
+		if (press.Floor >= 0) && (press.Type < 3) && (driver.Io_read_bit(driver.Sensors[press.Floor]) == 0) {
+			if press.Type == 2 {
+				driver.Elev_set_btn_light(press.Floor, press.Type, 1)
+			}
+			//fmt.Println(press)
+			btn_chan <- press
 			call_chan <- press
 		}
 	}

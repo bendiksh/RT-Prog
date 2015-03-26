@@ -1,6 +1,6 @@
 package driver
 
-//import "net"
+import "net"
 
 const(
 	N_floors = 4
@@ -28,7 +28,9 @@ const(
 )
 
 type Elev_t struct {
-	//ID
-	upCalls [N_floors]int
-	downCalls [N_floors]int 
+	UpCalls [N_floors]int
+	DownCalls [N_floors]int
+	Floor int
+	Dir int
+	Conn *net.TCPConn
 }

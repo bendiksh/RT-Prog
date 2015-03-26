@@ -115,20 +115,21 @@ func Elev_set_btn_light(floor, button, value int){
 	}
 }*/
 
-func Elev_poll_sensors(low, high, goal int) int {
+func Elev_poll_sensors(low, high, goal int, Job_done chan bool) int {
 	done := false
 	curr := 0
 	for !done {
 		for i := low; i < high; i++ {
 			Sleep(1 * Millisecond)
 			if Io_read_bit(Sensors[i]) == 1 {
-				if i != curr {
+				//if i != curr {
 					Printf("Floor sensor: %d\n", i)
-				}
+				//}
 				curr = i
 				Elev_floor_ind(i)
-				if i == goal || i == N_floors - 1 {
+				if (i == goal) || (i == N_floors - 1) {
 					done = true
+					Job_gone <- true
 					break
 				}
 			}
