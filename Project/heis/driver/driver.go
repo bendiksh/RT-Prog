@@ -41,16 +41,16 @@ func Elev_init() (err, floor int){ // returns a status int and a floor int
 	// turn off all lights
 	for i := 0; i < N_floors; i++ {
 		if i != 0 {
-			Elev_set_btn_light(i, Button_down, 0)
+			Button_light(i, Button_down, 0)
 		}
 		if i != (N_floors - 1) {
-			Elev_set_btn_light(i, Button_up, 0)
+			Button_light(i, Button_up, 0)
 		}
-		Elev_set_btn_light(i, Button_command, 0)
+		Button_light(i, Button_command, 0)
 	}
 
-	Elev_stop_light(0)
-	Elev_door_light(0)
+	Stop_light(0)
+	Door_light(0)
 	
 	// find current floor
 	floor = 0
@@ -60,12 +60,12 @@ func Elev_init() (err, floor int){ // returns a status int and a floor int
 		}
 	}
 	Printf("Init floor : %d\n", floor)
-	Elev_floor_ind(floor)
+	Floor_ind(floor)
 
 	return
 }
 
-func Elev_floor_ind(floor int){
+func Floor_ind(floor int){
 	if (floor & 0x02 == 0x02) {
 		Io_set_bit(LIGHT_FLOOR_IND1)
 	} else{
@@ -79,7 +79,7 @@ func Elev_floor_ind(floor int){
 }
 
 
-func Elev_poll_buttons() Event_t{ 
+func Poll_buttons() Event_t{ 
 	for i := 0; i < N_floors; i++ {
 		for j := 0; j < N_buttons; j++{
 			if (Io_read_bit(Button_matrix[i][j]) == 1 && button[i][j] == 0){
@@ -93,7 +93,7 @@ func Elev_poll_buttons() Event_t{
 	return Event_t{-1,-1}
 }
 
-func Elev_set_btn_light(floor, button, value int){
+func Button_light(floor, button, value int){
 	if value == 1 {
 		Io_set_bit(Light_matrix[floor][button])
 	}else {
@@ -115,7 +115,7 @@ func Elev_set_btn_light(floor, button, value int){
 	}
 }*/
 
-func Elev_poll_sensors(low, high, goal, bound int) int {
+func Poll_sensors(low, high, goal, bound int) int {
 	done := false
 	curr := 0
 	for !done {
@@ -126,7 +126,7 @@ func Elev_poll_sensors(low, high, goal, bound int) int {
 					Printf("Floor sensor: %d\n", i)
 				}
 				curr = i
-				Elev_floor_ind(i)
+				Floor_ind(i)
 				if (i == goal) || (i == bound) {
 					done = true
 					//Job_done <- i
@@ -138,7 +138,7 @@ func Elev_poll_sensors(low, high, goal, bound int) int {
 	return curr
 }
 
-func Elev_stop_light(i int){
+func Stop_light(i int){
 	if (i == 1) {
 		Io_set_bit(LIGHT_STOP)
 	}else{
@@ -146,7 +146,7 @@ func Elev_stop_light(i int){
 	}
 }
 
-func Elev_door_light(i int){
+func Door_light(i int){
 	if (i == 1) {
 		Io_set_bit(LIGHT_DOOR_OPEN)
 	}else{
@@ -156,7 +156,7 @@ func Elev_door_light(i int){
 
 var prev_speed int
 
-func Elev_motor(speed int){
+func Motor(speed int){
 	if ( speed > 0 ){
 		Io_clear_bit(MOTORDIR)
 		Io_write_analog(MOTOR, int(2048 + 4*Abs(float64(speed))))

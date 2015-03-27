@@ -17,9 +17,9 @@ const(
 	Button_up = 0
 	Button_down = 1
 	Button_command = 2
-	//JOB_DONE         = 3
-	//PASSED_FLOOR     = 4
-	//DIRECTION_CHANGE_UP = 5
+	Elev_done = 3
+	Lights_on = 4
+	Lights_off = 5
 	//DIRECTION_CHANGE_DOWN = 6
 	//DIRECTION_CHANGE_STOP = 7
 	//TURN_ON_UP_LIGHT = 8
@@ -28,8 +28,8 @@ const(
 )
 
 type Elev_t struct {
-	upCalls [N_floors]int
-	downCalls [N_floors]int
+	UpCalls [N_floors]int
+	DownCalls [N_floors]int
 	Floor int
 	Dir int
 	Conn *net.TCPConn
