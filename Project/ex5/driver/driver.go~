@@ -35,7 +35,7 @@ var Sensors = [N_floors]int{SENSOR_FLOOR1,SENSOR_FLOOR2,SENSOR_FLOOR3,SENSOR_FLO
 //
 func Elev_init() (err, floor int){ // returns a status int and a floor int
 	if (int(Io_init()) != 1) {
-		return 1
+		return 1, -1
 	}
 	
 	// turn off all lights
@@ -127,7 +127,7 @@ func Elev_poll_sensors(low, high, goal int) int {
 				}
 				curr = i
 				Elev_floor_ind(i)
-				if i == goal || i == N_floors -1 {
+				if i == goal || i == N_floors -1 || i == 0{
 					done = true
 					break
 				}

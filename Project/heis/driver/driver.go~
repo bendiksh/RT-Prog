@@ -1,6 +1,6 @@
 package driver
 
-import . "time"
+//import . "time"
 import . "math"
 import . "fmt"
 	
@@ -115,25 +115,25 @@ func Elev_set_btn_light(floor, button, value int){
 	}
 }*/
 
-func Elev_poll_sensors(low, high, goal int) int {
+func Elev_poll_sensors(low, high, goal, bound int) int {
 	done := false
 	curr := 0
 	for !done {
-		c:
-			for i := low; i < high; i++ {
-				Sleep(1 * Millisecond)
-				if Io_read_bit(Sensors[i]) == 1 {
-					//if i != curr {
-						Printf("Floor sensor: %d\n", i)
-					//}
-					curr = i
-					Elev_floor_ind(i)
-					if (i == goal) || (i == N_floors - 1) {
-						done = true
-						break c
-					}
+		for i := low; i < high; i++ {
+			//Sleep(1 * Millisecond) // when using this the elevator stops only at the top or bottom
+			if Io_read_bit(Sensors[i]) == 1 {
+				if i != curr {
+					Printf("Floor sensor: %d\n", i)
+				}
+				curr = i
+				Elev_floor_ind(i)
+				if (i == goal) || (i == bound) {
+					done = true
+					//Job_done <- i
+					break
 				}
 			}
+		}
 	}
 	return curr
 }
@@ -159,18 +159,21 @@ var prev_speed int
 func Elev_motor(speed int){
 	if ( speed > 0 ){
 		Io_clear_bit(MOTORDIR)
+		Io_write_analog(MOTOR, int(2048 + 4*Abs(float64(speed))))
 	}else if (speed < 0){
 		Io_set_bit(MOTORDIR)
+		Io_write_analog(MOTOR, int(2048 + 4*Abs(float64(speed))))
 	}else{
 		if (prev_speed < 0){
 			Io_clear_bit(MOTORDIR)
 		}else if(prev_speed > 0){
 			Io_set_bit(MOTORDIR)
 		}
-		Sleep(10*Millisecond) // time.Sleep and time.Millisecond
+		Io_write_analog(MOTOR, 0)
+		//Sleep(10*Millisecond) // time.Sleep and time.Millisecond
 	}
 	prev_speed = speed
 	
 	// write speed to motor
-	Io_write_analog(MOTOR, int(2048 + 4*Abs(float64(speed)))) // math.Abs
+	//Io_write_analog(MOTOR, int(2048 + 4*Abs(float64(speed)))) // math.Abs
 }

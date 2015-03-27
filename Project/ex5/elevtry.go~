@@ -9,7 +9,7 @@ import(
 
 func main() {
 	err, floor := driver.Elev_init()
-	if err != 1 {
+	if err != 0 {
 		log.Fatalln(err)
 	}
 	

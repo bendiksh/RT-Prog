@@ -12,13 +12,16 @@ func main() {
 	if err != 0 {
 		log.Fatalln(err)
 	}
+	wait := make(chan int)
 	
-	Elevator_call(floor)
+	go Elevator_call(floor, wait)
+	
+	<- wait
 	
 	
 }
 
-func Elevator_call(curr_floor int) {
+func Elevator_call(curr_floor int, wait chan int) {
 	var press driver.Event
 	//var p_btn driver.Event.Type
 	
@@ -78,4 +81,5 @@ func Elevator_call(curr_floor int) {
 			}
 		}
 	}
+	wait <- 1
 }

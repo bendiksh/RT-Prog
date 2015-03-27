@@ -16,7 +16,8 @@ var elev = driver.Elev_t{
 }
 
 func main() {
-	err, floor := driver.Elev_init()
+	var err int
+	err, elev.Floor = driver.Elev_init()
 	if err != 0 {
 		log.Fatalln("fail")
 	}
@@ -24,10 +25,10 @@ func main() {
 	call_chan := make(chan driver.Event_t)
 	btn_chan := make(chan driver.Event_t)
 	elev_chan := make(chan int)
-	Job_done := make(chan bool)
+	//Job_done := make(chan int)
 	
 	go Buttons(btn_chan, call_chan)
-	go Elevator(floor, elev_chan, call_chan, Job_done)
+	go Elevator(elev_chan, call_chan)
 	
 	for {
 		select {
@@ -44,7 +45,7 @@ func HandleJobs() {
 	
 }
 
-func Elevator(curr_floor int, elev_chan chan int, call_chan chan driver.Event_t, Job_done chan bool) {
+func Elevator(elev_chan chan int, call_chan chan driver.Event_t) {
 	//var call driver.Event_t
 	
 	for {
@@ -52,23 +53,67 @@ func Elevator(curr_floor int, elev_chan chan int, call_chan chan driver.Event_t,
 		fmt.Printf("Floor : %d, Type: %d\n", call.Floor, call.Type)
 		if (call.Floor >= 0) && (call.Floor < driver.N_floors) {
 			driver.Elev_set_btn_light(call.Floor, call.Type, 1)
-			if call.Floor == curr_floor{
+			if call.Floor == elev.Floor{
 				fmt.Println("Same floor")
 				
 				
-			}else if call.Floor > curr_floor {
+			}else if call.Floor > elev.Floor {
 				fmt.Println("Going up")
-				driver.Elev_motor(200)
-				driver.Elev_poll_sensors(curr_floor, driver.N_floors, call.Floor, Job_done)
-				<- Job_done
+				driver.Elev_motor(100)
+				
+				// Polling sensors
+				elev.Floor = driver.Elev_poll_sensors((elev.Floor+1), driver.N_floors, call.Floor, (driver.N_floors -1))
+				/*done := false
+				//curr := 0
+				for !done {
+					for i := elev.Floor + 1; i < driver.N_floors; i++ {
+						time.Sleep(1 * time.Millisecond)
+						if driver.Io_read_bit(driver.Sensors[i]) == 1 {
+							//if i != curr {
+								fmt.Printf("Floor sensor: %d\n", i)
+							//}
+							elev.Floor = i
+							driver.Elev_floor_ind(i)
+							if (i == call.Floor) || (i == driver.N_floors - 1) {
+								done = true
+								//Job_done <- i
+								break
+							}
+						}
+					}
+				}*/
+				
+				//curr_floor =<- Job_done
 				driver.Elev_motor(0)
 				
 				
-			}else if call.Floor < curr_floor {
+			}else if call.Floor < elev.Floor {
 				fmt.Println("Going down")
-				driver.Elev_motor(-200)
-				driver.Elev_poll_sensors(0, curr_floor, call.Floor, Job_done)
-				<- Job_done
+				driver.Elev_motor(-100)
+				
+				// Polling sensors
+				elev.Floor = driver.Elev_poll_sensors(0, elev.Floor, call.Floor, 0)
+				/*done := false
+				//curr := 0
+				for !done {
+					for i := 0; i < elev.Floor; i++ {
+						time.Sleep(1 * time.Millisecond)
+						if driver.Io_read_bit(driver.Sensors[i]) == 1 {
+							//if i != curr {
+								fmt.Printf("Floor sensor: %d\n", i)
+							//}
+							//curr = i
+							driver.Elev_floor_ind(i)
+							if (i == call.Floor) || (i == 0) {
+								done = true
+								//Job_done <- i
+								break
+							}
+						}
+					}
+				}*/
+				
+				//curr_floor =<- Job_done
 				driver.Elev_motor(0)
 				
 		
@@ -77,7 +122,7 @@ func Elevator(curr_floor int, elev_chan chan int, call_chan chan driver.Event_t,
 			driver.Elev_door_light(1)
 			time.Sleep(1*time.Second)
 			driver.Elev_door_light(0)
-			elev_chan <- curr_floor
+			elev_chan <- elev.Floor
 		}
 		
 		/*
