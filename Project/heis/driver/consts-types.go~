@@ -18,8 +18,8 @@ const(
 	Button_down = 1
 	Button_command = 2
 	Elev_done = 3
-	Lights_on = 4
-	Lights_off = 5
+	Lights_up_on = 4
+	Lights_down_on = 5
 	//DIRECTION_CHANGE_DOWN = 6
 	//DIRECTION_CHANGE_STOP = 7
 	//TURN_ON_UP_LIGHT = 8

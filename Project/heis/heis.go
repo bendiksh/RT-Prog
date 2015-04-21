@@ -79,7 +79,7 @@ func eventHandler(event_chan chan Event_t) {
 	}
 }
 
-func anyJobs(callList [N_floors]int) (bool) {
+func anyJobs(callList [N_floors]int) (bool, int) {
 	for i := 0; i < N_floors; i++{
 		if callList[i] == 1 {
 			return true, i
@@ -90,15 +90,21 @@ func anyJobs(callList [N_floors]int) (bool) {
 
 func elevator(elev_chan chan int, event_chan chan Event_t) {	
 	for {
-		// any UpCalls?
-		upCall := anyJobs(elev.UpCalls)
+		// any UpCalls above?
+		upAbove, _ := anyJobs(elev.UpCalls)
 		
-		// any DownCalls?
-		downCall := anyJobs(elev.DownCalls)
+		// any UpCalls below?
+		upBelow, i := anyJobs(elev.UpCalls)
+		
+		// any DownCalls below?
+		downBelow, _ := anyJobs(elev.DownCalls)
+		
+		// any DownCalls above?
 		
 		
 		
-		fmt.Printf("Floor : %d, Type: %d\n", call.Floor, call.Type)
+		
+		//fmt.Printf("Floor : %d, Type: %d\n", call.Floor, call.Type)
 		if (call.Floor >= 0) && (call.Floor < N_floors) {
 			Button_light(call.Floor, call.Type, 1)
 			if call.Floor == elev.Floor{
@@ -128,7 +134,7 @@ func elevator(elev_chan chan int, event_chan chan Event_t) {
 			}
 			Button_light(call.Floor, call.Type, 0)
 			Door_light(1)
-			time.Sleep(1*time.Second)
+			time.Sleep(500*time.Millisecond)
 			Door_light(0)
 			elev_chan <- elev.Floor
 			event_chan <- Event_t{elev.Floor, Elev_done}
