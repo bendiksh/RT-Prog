@@ -9,7 +9,7 @@ import  (
 	"strconv"
 )
 
-const udp_address = "129.241.187.255"
+const udp_address = "127.0.0.1"
 
 func UDP_routine(IPAddr string, chann chan string){
 	go UDP_listener(chann)
