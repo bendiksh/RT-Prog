@@ -20,6 +20,8 @@ const(
 	Elev_done = 3
 	Lights_up_on = 4
 	Lights_down_on = 5
+	Lights_off = 6
+	Status = 7
 )
 
 type Elev_t struct {
@@ -28,4 +30,12 @@ type Elev_t struct {
 	Floor int
 	Dir int
 	Conn *net.TCPConn
+}
+
+type Message_t struct {
+	Type int
+	Floor int
+	Dir int
+	ElevDest int
+	IP string
 }
