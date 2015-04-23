@@ -10,27 +10,27 @@ import(
 
 func main() {
 	msgChan
-	var msg Message_t
-	var jobsReceived []Event_t// ?? send to another function?? {Floor, Dir}
 	msgMap = make(map[string]*Message_t)
+	job_q := Make_job_queue()
 	
 	for {
-		msg = <- msgChan		// received message from slave
-		switch msg.Type {
+		msg := <- msgChan		// received message from slave
+		t := msg.Type
+		switch t {
 			case 0: //UpCalls
-				jobsReceived = append(jobsReceived, [msg.ElevDist, 1])
+				Push(job_q, msg.IP, msg.Type, msg.Floor, msg.Dir)
 				
-				TCP_send_msg(IP, PORT, {7,0,1,msg.Floor}) // request status update from slaves
+				TCP_send_msg(IP, PORT, {7,0,1,msg.Floor}) // request status update from slaves, last two fields are used to set lights
 				
 			case 1://DownCalls
-				jobsReceived = append(jobsReceived, {msg.ElevDist, -1})
+				Push(job_q, msg.IP, msg.Type, msg.Floor, msg.Dir)
 				
-				TCP_send_msg(IP, PORT, {7,0,-1,msg.Floor}) // request status update from slaves
+				TCP_send_msg(IP, PORT, {7,0,-1,msg.Floor}) // request status update from slaves, last two fields are used to set lights
 			case 7:
-				msgMap[msg.IP] = append(msgMap[msg.IP], msg) // can't append maps
+				msgMap[msg.IP] = msg
 		}
 		if len(msgMap) == len(IPmap){
-			job := jobsReceived[:1]
+			
 			findBest(msgMap) // run as goroutine?
 		}	
 	}
