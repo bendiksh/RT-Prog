@@ -2,11 +2,11 @@ package main
 
 import (
 
-	"RT-Prog/Project/heis/comm/mainlib"
+	"mainlib"
 	"time"
 	"fmt"
-	"RT-Prog/Project/heis/comm/tcpcommv2"
-	"RT-Prog/Project/heis/comm/queue"
+	"tcpcommv2"
+	"queue"
 )
 
 const (

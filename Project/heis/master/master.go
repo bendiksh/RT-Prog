@@ -1,4 +1,4 @@
-package main
+package master
 
 import(
 	 . "RT-Prog/Project/heis/driver"
@@ -11,10 +11,10 @@ import(
 
 const(
 	//IP = "127.0.0.1"
-	PORT = "30009"
+	PORT = "20009"
 )
 
-func main(network_data *mainlib.Network_info) {
+func Master(network_data *mainlib.Network_info) {
 	msgChan := make(chan Message_t, 10)
 	msgMap := make(map[string]Message_t)
 	job_q := Make_job_queue()
@@ -28,37 +28,53 @@ func main(network_data *mainlib.Network_info) {
 		switch t {
 			case 0: //UpCalls
 				Push(job_q, msg.Floor, 1)
-				
-				newMsg := Message_t{7,0,1,msg.Floor,""} // Dir and ElevDest used to set light
+				upMsg := Message_t{7,0,0,msg.Floor,""} // Dir and ElevDest used to set light
 				
 				for ip := range network_data.IPmap {
-					TCP_send_msg(ip, PORT, newMsg)
+					TCP_send_msg(ip, PORT, upMsg)
 				}
-				
-			case 1://DownCalls
+				break
+			case 1: //DownCalls
 				Push(job_q, msg.Floor, -1)
-				
-				newMsg := Message_t{7,0,-1,msg.Floor,""} // Dir and ElevDest used to set light
+				downMsg := Message_t{7,0,1,msg.Floor,""} // Dir and ElevDest used to set light
 				
 				for ip := range network_data.IPmap {// Request status update from all elev's
-					TCP_send_msg(ip, PORT, newMsg) 
+					TCP_send_msg(ip, PORT, downMsg) 
 				}
-			case 7:
+				break
+			case 3: //Elev_done
+				doneMsg := Message_t{6,msg.Floor,msg.Dir,0,""} // Floor and Dir used to clear light
+				
+				for ip := range network_data.IPmap {
+					TCP_send_msg(ip, PORT, doneMsg) 
+				}
+				break
+			case 7: //Status
 				msgMap[msg.IP] = msg
-		}
-		if len(msgMap) == len(IPmap){
-			f, d := Pop(job_q)
-			j := Event_t{f,d} // using Type as Dir
+				
+				if len(msgMap) == len(network_data.IPmap){
+					f, d := Pop(job_q)
+					j := Event_t{f,d} // using Type as Dir
 			
-			findBest(msgMap, j) // run as goroutine?
-		}	
+					bestIP := findBest(msgMap, j)
+					
+					bestMsg := Message_t{4,0,j.Type,j.Floor,""}
+					TCP_send_msg(bestIP,PORT,bestMsg)
+					
+					for k := range msgMap{
+						delete(msgMap, k)
+					}
+				}
+				break
+		}
+			
 	}
 }
 
-func findBest(elevMap map[string]Message_t, job Event_t) {
-	var bestIP string
+func findBest(elevMap map[string]Message_t, job Event_t) string{
+	var bestIP, closestIP string
 	var distance int
-	bestDist := 99
+	bestDist, closest := 99, 99
 	
 	for key, val := range elevMap {
 		distance = int(math.Abs(float64(job.Floor) - float64(val.Floor)))
@@ -73,6 +89,5 @@ func findBest(elevMap map[string]Message_t, job Event_t) {
 			// need something for when no elevator is chosen, ex request status update and run again
 		}
 	}
-	fmt.Printf("bestDist : %d , bestIP : %s\n", bestDist, bestIP)
-	// return something or send message directly from here
+	return bestIP
 }

@@ -1,6 +1,5 @@
 package driver
 
-import "net"
 
 const(
 	N_floors = 4
@@ -20,6 +19,8 @@ const(
 	Elev_done = 3
 	Lights_up_on = 4
 	Lights_down_on = 5
+	Light_off = 6
+	Status = 7
 )
 
 type Elev_t struct {
@@ -27,12 +28,13 @@ type Elev_t struct {
 	DownCalls [N_floors]int
 	Floor int
 	Dir int
-	Conn *net.TCPConn
+	IP string
 }
 
 type Message_t struct {
 	Type int
 	Floor int
 	Dir int
-	ElevDist int
+	ElevDest int
+	IP string
 }

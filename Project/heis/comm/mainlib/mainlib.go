@@ -2,7 +2,7 @@ package mainlib
 
 import(
 	"time"
-	"github.com/bendiksh/RT-Prog/Project/heis/comm/udpcomm"
+	"RT-Prog/Project/heis/comm/udpcomm"
 	"sync"
 
 )
