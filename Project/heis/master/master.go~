@@ -85,9 +85,19 @@ func findBest(elevMap map[string]Message_t, job Event_t) string{
 			}else if val.Dir == 0 {
 				bestDist = distance
 				bestIP = key
+			}else if val.ElevDest == job.Floor{
+				bestDist = distance
+				bestIP = key
 			}
 			// need something for when no elevator is chosen, ex request status update and run again
+		}else if distance < closest {
+			closest = distance
+			closestIP = key
 		}
 	}
-	return bestIP
+	if bestDist < 10{
+		return bestIP
+	}else {
+		return closestIP
+	}
 }
