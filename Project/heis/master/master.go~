@@ -1,9 +1,9 @@
-package master
+package main
 
 import(
 	 . "RT-Prog/Project/heis/driver"
 	"fmt"
-	//"net"
+	"time"
 	"RT-Prog/Project/heis/comm/mainlib"
 	"math"
 	. "RT-Prog/Project/heis/comm/tcpcommv2"
@@ -14,19 +14,27 @@ const(
 	PORT = "20009"
 )
 
+func main() {
+	Master(&mainlib.Network_info)
+}
+
 func Master(network_data *mainlib.Network_info) {
 	msgChan := make(chan Message_t, 10)
+	
 	msgMap := make(map[string]Message_t)
+	sentMap := make(map[Message_t]int64)
+	
 	job_q := Make_job_queue()
 	
 	go TCP_receiver_routine(network_data.MyIP, "30009", msgChan)
-	
+	go sentJobs(&sentMap)
 	
 	for {
 		msg := <- msgChan		// received message from slave
 		t := msg.Type
 		switch t {
-			case 0: //UpCalls
+			case Button_up:
+				fmt.Println("Received call")
 				Push(job_q, msg.Floor, 1)
 				upMsg := Message_t{7,0,0,msg.Floor,""} // Dir and ElevDest used to set light
 				
@@ -34,7 +42,7 @@ func Master(network_data *mainlib.Network_info) {
 					TCP_send_msg(ip, PORT, upMsg)
 				}
 				break
-			case 1: //DownCalls
+			case Button_down:
 				Push(job_q, msg.Floor, -1)
 				downMsg := Message_t{7,0,1,msg.Floor,""} // Dir and ElevDest used to set light
 				
@@ -42,14 +50,17 @@ func Master(network_data *mainlib.Network_info) {
 					TCP_send_msg(ip, PORT, downMsg) 
 				}
 				break
-			case 3: //Elev_done
-				doneMsg := Message_t{6,msg.Floor,msg.Dir,0,""} // Floor and Dir used to clear light
+			case Elev_done:
+				fmt.Println("Received Elev_done")
+				
+				/*doneMsg := Message_t{6,msg.Floor,msg.Dir,0,""} // Floor and Dir used to clear light
 				
 				for ip := range network_data.IPmap {
 					TCP_send_msg(ip, PORT, doneMsg) 
 				}
-				break
-			case 7: //Status
+				break*/
+			case Status:
+				fmt.Println("Received status")
 				msgMap[msg.IP] = msg
 				
 				if len(msgMap) == len(network_data.IPmap){
@@ -58,14 +69,14 @@ func Master(network_data *mainlib.Network_info) {
 			
 					bestIP := findBest(msgMap, j)
 					
-					bestMsg := Message_t{4,0,j.Type,j.Floor,""}
+					bestMsg := Message_t{4,0,j.Type,j.Floor,bestIP}
 					TCP_send_msg(bestIP,PORT,bestMsg)
+					sentMap[bestMsg] := time.Now().UnixNano()
 					
 					for k := range msgMap{
 						delete(msgMap, k)
 					}
 				}
-				break
 		}
 			
 	}
@@ -89,7 +100,6 @@ func findBest(elevMap map[string]Message_t, job Event_t) string{
 				bestDist = distance
 				bestIP = key
 			}
-			// need something for when no elevator is chosen, ex request status update and run again
 		}else if distance < closest {
 			closest = distance
 			closestIP = key
@@ -101,3 +111,47 @@ func findBest(elevMap map[string]Message_t, job Event_t) string{
 		return closestIP
 	}
 }
+
+func sentJobs(sentMap *map[Message_t]int64) {
+	
+	for {
+		t := time.Now().UnixNano()
+		for k, v := range sentMap {
+			if (t - v) > (5 * 1000000000) {
+				fmt.Println("took too long")
+			}
+		}
+		time.Sleep(1 * time.Second)
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -17,7 +17,7 @@ const(
 	Button_down = 1
 	Button_command = 2
 	Elev_done = 3
-	Lights_up_on = 4
+	Job = 4
 	Lights_down_on = 5
 	Light_off = 6
 	Status = 7

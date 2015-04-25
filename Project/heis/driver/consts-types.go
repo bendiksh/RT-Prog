@@ -18,7 +18,7 @@ const(
 	Button_command = 2
 	Elev_done = 3
 	Job = 4
-	Lights_down_on = 5
+	Job_timeout = 5
 	Light_off = 6
 	Status = 7
 )
